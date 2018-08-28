@@ -1,0 +1,8 @@
+{
+  "name": "ecs-staticpress-lambda",
+  "dependencies": {
+    "nice-route53": "^1.3.0",
+    "serverless-dynamodb-ttl": "^0.1.1",
+    "serverless-pseudo-parameters": "^2.2.0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "ecs-staticpress-lambda-edge",
+  "dependencies": {
+    "serverless-pseudo-parameters": "^2.2.0",
+    "serverless-step-functions": "^1.6.1"
+  }
+}

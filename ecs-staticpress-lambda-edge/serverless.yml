@@ -1,0 +1,75 @@
+service: ecs-staticpress-lambda-edge
+
+custom:
+  defaultStage: dev
+  profiles:
+    dev: develop
+    prod: develop
+
+provider:
+  name: aws
+  region: us-east-1
+  stage: ${opt:stage, self:custom.defaultStage}
+  profile: ${self:custom.profiles.${self:provider.stage}}
+  runtime: nodejs8.10
+
+package:
+  individually: true
+  exclude:
+    - src/**
+
+functions:
+  on-wpadmin-request-at-edge:
+    handler: src/on-wpadmin-request-at-edge/app.lambda_handler
+    memorySize: 128
+    timeout: 5
+    role: WpadminLambdaEdgeRole
+    package:
+      include:
+        - src/on-wpadmin-request-at-edge/**
+  on-request-at-edge:
+    handler: src/on-request-at-edge/app.lambda_handler
+    memorySize: 128
+    timeout: 5
+    role: LambdaEdgeRole
+    package:
+      include:
+        - src/on-request-at-edge/**
+
+# TODO Restrict strictly......
+resources:
+  Resources:
+    WpadminLambdaEdgeRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /
+        RoleName: WpadminLambdaEdgeRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+                  - edgelambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+          - arn:aws:iam::aws:policy/AmazonSNSFullAccess
+          - arn:aws:iam::aws:policy/AmazonECS_FullAccess
+    LambdaEdgeRole:
+      Type: AWS::IAM::Role
+      Properties:
+        Path: /
+        RoleName: LambdaEdgeRole
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+                  - edgelambda.amazonaws.com
+              Action: sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
