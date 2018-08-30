@@ -38,7 +38,7 @@ function is_ecs_wp_task_start_event(event) {
     return true;
 }
 
-function setR53Record(rec) {
+function set_r53_record(rec) {
     return new Promise(function (resolve, reject) {
         r53.setRecord(rec, function (err, res) {
             if (err) {
@@ -51,7 +51,7 @@ function setR53Record(rec) {
     });
 }
 
-async function retrieveTaskPublicIP(task_arn, cluster_name) {
+async function retrieve_task_public_ip(task_arn, cluster_name) {
     const task_desc_list = await ecs.describeTasks({
         tasks: [task_arn],
         cluster: cluster_name
@@ -125,7 +125,7 @@ exports.lambda_handler = async (event, context) => {
     }
 
     // タスクENIのパブリックIPを見つけてR53に登録
-    const public_ip = await retrieveTaskPublicIP(task_arn, ECS_CLUSTER_NAME);
+    const public_ip = await retrieve_task_public_ip(task_arn, ECS_CLUSTER_NAME);
     const rec = {
         zoneId: R53_HOSTED_ZONE_ID,
         name: R53_ECS_WP_BACK_DNS_NAME,
@@ -136,5 +136,5 @@ exports.lambda_handler = async (event, context) => {
         ],
     };
 
-    await setR53Record(rec);
+    await set_r53_record(rec);
 };
